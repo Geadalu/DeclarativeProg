@@ -42,7 +42,7 @@ madre(M) :- familia(_, M, _).
 hijo(H) :- familia(_, _, [H | _]).
 
 existe2(P) :- familia(P, _, _) ; familia(_, P, _) ; familia(_, _, [existe_lista(P)]).
-existe_lista(P) :- [P|existe_lista(P)].
+existe_lista(P) :- [P|existe_lista(P)], [P].
 
 
 

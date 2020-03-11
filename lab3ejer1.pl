@@ -15,7 +15,7 @@
 %sacar(T, N, L11, L22):- T = [HT|TT], HT < N, L1 = [HT|L11], sacar(TT, N, L1, L2).
 
 partir([], [], []).
-partir([X|L], L1, L2):- partir(L, L1, L2, X).
-partir([], [], [], N).
-partir([H|T], [H|T1], L2, N):- H =< N, partir(T, T1, L2, N).
-partir([H|T], L1, [H|T2], N):- H > N, partir(T, L1, T2, N).
+partir(P, L1, L2):- P = [X|L], partir_2(L, L1, L2, X).
+partir_2([], [], [], _):- !.
+partir_2(P, L1, L2, N):- P = [H|T], L1 = [H|T1], H =< N, partir_2(T, T1, T2, N), L2 = T2.
+partir_2(P, L1, L2, N):- P = [H|T], L2 = [H|T2], H > N, partir_2(T, T1, T2, N), L1 = T1.
