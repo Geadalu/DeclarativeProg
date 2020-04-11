@@ -80,7 +80,7 @@ foreign_t pl_sum_matrix (term_t list_ofLists, term_t rows, term_t columns, term_
 
 	if (PL_is_integer(rows)){
 		if(!PL_get_integer(rows, &rows_)){
-			//print
+			fprintf(stderr, "La variable filas no es válida\n");
 			PL_fail;
 		}
 	}
