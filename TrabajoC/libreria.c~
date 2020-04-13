@@ -145,7 +145,7 @@ foreign_t pl_multiply_matrix (term_t multip, term_t list_ofLists, term_t rows, t
 
 	term_t aux = PL_new_term_ref();
 	if (!matrix_toList(matrix, aux)){
-		//print error
+		fprintf(stderr, "Error pasando la matriz a lista\n");
 		PL_fail;
 	}
 	return PL_unify(aux, result);

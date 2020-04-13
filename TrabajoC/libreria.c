@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <SWI-Prolog.h>
 
+//TODO: sumar y multiplicar dos matrices
+
 typedef struct {
   int rows;
 	int columns;
