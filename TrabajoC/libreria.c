@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <SWI-Prolog.h>
 
-//TODO: makefile, pl_multiply_matrixes()
+//TODO: makefile
 
 typedef struct {
   int rows;
@@ -121,6 +121,7 @@ int matrix_toList(Matrix_C* matrix, term_t term){
 }
 
 
+								//AQUÍ EMPIEZAN LOS PREDICADOS DE PROLOG//
 
 
 // pl_multiply_matrix_by 
@@ -246,15 +247,9 @@ foreign_t pl_sum_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t ro
 
 //pl_multiply_matrixes
 //Multiplicar dos matrices
+//multiply_matrixes([[1,2,1],[2,1,2]],[[1, 1],[1,1],[1,1]], 2, 3, 3, 2, R).
 foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t rows1_, term_t columns1_, term_t rows2_, term_t columns2_, term_t result){
-	int columns1, rows1, columns2, rows2, i;
-
-	//checkear que el nº de filas de la primera sea el de columnas de la segunda
-
-	if(!checkInteger(&rows1, rows1_)){
-		fprintf(stderr, "La variable rows1 no es válida\n");		
-		PL_fail;
-	}
+	int columns1, rows1, columns2, rows2;
 
 	if(!checkInteger(&columns1, columns1_)){
 		fprintf(stderr, "La variable columns1 no es válida\n");		
@@ -266,6 +261,17 @@ foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term
 		PL_fail;
 	}
 
+	if(columns1 != rows2){
+		fprintf(stderr, "No se pueden multiplicar dos matrices si el número de columnas de la primera no es igual al número de filas de la segunda\n");
+		PL_fail;
+	}
+
+	if(!checkInteger(&rows1, rows1_)){
+		fprintf(stderr, "La variable rows1 no es válida\n");		
+		PL_fail;
+	}
+
+	
 	if(!checkInteger(&columns2, columns2_)){
 		fprintf(stderr, "La variable columns2 no es válida\n");		
 		PL_fail;
@@ -283,10 +289,29 @@ foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term
 		PL_fail;
 	}
 
-	Matrix_C* resultMatrix = createMatrix(rows, columns);
+	Matrix_C* resultMatrix = createMatrix(rows1, columns2);
+	int i, iRow, j, jRow, k, index_1, index_2;
 
+	for(i=0; i<rows1+1; i++){
+		for(j=0; j<columns2+1; j++){
+			resultMatrix->matrix[i*columns2+j] = 0;
+			for (k=0; k<rows1+1; k++){
+				resultMatrix->matrix[i*columns2+j] += matrix1->matrix[i*columns1+k] * matrix2->matrix[k*columns2+j];
+			}
+		}
+	}
+	
+
+	term_t aux = PL_new_term_ref();
+	if (!matrix_toList(resultMatrix, aux)){
+		fprintf(stderr, "Error pasando la matriz a lista\n");
+		PL_fail;
+	}
+	return PL_unify(aux, result);
 }
 
+//pl_help_matrix()
+//ayuda de la librería
 foreign_t pl_help_matrix (){
 	fprintf(stderr, "Bienvenid@ a la librería Matrilog.\nLas operaciones disponibles son:\n\n");
 	fprintf(stderr, "  - total_matrix(list_ofLists:list, rows:integer, columns:integer, Result:variable)\n    Sumar todos los elementos de una matriz y almacenar el resultado en Result\n\n");
@@ -300,6 +325,6 @@ install_t install() {
 	PL_register_foreign("total_matrix", 4, pl_total_matrix, 0);
 	PL_register_foreign("mult_matrix_by", 5, pl_multiply_matrix_by, 0);
 	PL_register_foreign("sum_matrixes", 5, pl_sum_matrixes, 0);
-	PL_register_foreign("multiply_matrixes", 5, pl_multiply_matrixes, 0);
+	PL_register_foreign("multiply_matrixes", 7, pl_multiply_matrixes, 0);
 	PL_register_foreign("help_matrix", 0, pl_help_matrix, 0);
 }
