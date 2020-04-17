@@ -220,6 +220,7 @@ foreign_t pl_total_matrix (term_t list_ofLists, term_t rows_, term_t columns_, t
 
 }
 
+//sum_matrixes([[1,2], [2,1], [1,1]], [[2,1], [2,1], [1,1]], 3, 2, R).
 //pl_sum_matrixes
 //Sumar dos matrices
 foreign_t pl_sum_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t rows_, term_t columns_, term_t result){
