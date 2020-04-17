@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <SWI-Prolog.h>
 
-//TODO: makefile
-
 typedef struct {
   int rows;
 	int columns;
@@ -18,6 +16,15 @@ Matrix_C* createMatrix(int rows, int columns){
 	matrix->columns = columns;
 	matrix->matrix = calloc(rows*columns, sizeof(double));
 	return matrix;
+}
+
+//destroyMatrix
+//Liberamos la memoria del sistema
+void destroyMatrix(Matrix_C* matrix){
+	//free(matrix->matrix);
+	//matrix->matrix = NULL;
+	free(matrix);
+	matrix = NULL;
 }
 
 //checkInteger
@@ -129,6 +136,7 @@ int matrix_toList(Matrix_C* matrix, term_t term){
 								//AQUÍ EMPIEZAN LOS PREDICADOS DE PROLOG//
 
 
+//mult_matrix_by(2, [[2], [3], [4], [5]], 4, 1, R).
 // pl_multiply_matrix_by 
 //Multiplicar número por matriz
 foreign_t pl_multiply_matrix_by (term_t multiplier_, term_t list_ofLists, term_t rows_, term_t columns_, term_t result){
@@ -166,9 +174,12 @@ foreign_t pl_multiply_matrix_by (term_t multiplier_, term_t list_ofLists, term_t
 		fprintf(stderr, "Error pasando la matriz a lista\n");
 		PL_fail;
 	}
+
+	destroyMatrix(matrix);
 	return PL_unify(aux, result);
 }
 
+//total_matrix([[1, 2], [3, 4]], 2, 2, R).
 //pl_total_matrix
 //sumar todos los números de la matriz
 foreign_t pl_total_matrix (term_t list_ofLists, term_t rows_, term_t columns_, term_t result){
@@ -186,7 +197,6 @@ foreign_t pl_total_matrix (term_t list_ofLists, term_t rows_, term_t columns_, t
 		PL_fail;
 	}
 
-	//Convertir la lista de listas a Matrix_C
 	Matrix_C* matrix = createMatrix(rows, columns);
  	if (list_toMatrix(list_ofLists, matrix) == 0){
 		fprintf(stderr, "Error pasando la lista a matriz\n");
@@ -206,6 +216,8 @@ foreign_t pl_total_matrix (term_t list_ofLists, term_t rows_, term_t columns_, t
 	} else {
 		PL_fail;
 	}
+	destroyMatrix(matrix);
+
 }
 
 //pl_sum_matrixes
@@ -246,12 +258,16 @@ foreign_t pl_sum_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t ro
 		fprintf(stderr, "Error pasando la matriz a lista\n");
 		PL_fail;
 	}
+	destroyMatrix(resultMatrix);
+	destroyMatrix(matrix1);
+	destroyMatrix(matrix2);
+
 	return PL_unify(aux, result);
 }
 
 //pl_multiply_matrixes
 //Multiplicar dos matrices
-//multiply_matrixes([[1,2,1],[2,1,2]],[[1, 1],[1,1],[1,1]], 2, 3, 3, 2, R).
+//multiply_matrixes([[1,0,0,2],[0,1,0,0],[0,0,1,-2], [0,0,0,1]],[[2],[-3],[1],[1]], 4, 4, 4, 1, R).
 foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t rows1_, 
 		term_t columns1_, term_t rows2_, term_t columns2_, term_t result){
 	int columns1, rows1, columns2, rows2;
@@ -296,21 +312,25 @@ foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term
 	}
 
 	Matrix_C* resultMatrix = createMatrix(rows1, columns2);
-	int i, iRow, j, jRow, k, index_1, index_2;
+	int i, j, k;
 
-	for(i=0; i<rows1+1; i++){
-		for(j=0; j<columns2+1; j++){
-			for (k=0; k<rows1+1; k++){
+	for(i=0; i<rows1; i++){
+		for(j=0; j<columns2; j++){
+			for (k=0; k<columns1; k++){
 				resultMatrix->matrix[i*columns2+j] += matrix1->matrix[i*columns1+k] * matrix2->matrix[k*columns2+j];
 			}
 		}
 	}
-	
+
 	term_t aux = PL_new_term_ref();
 	if (!matrix_toList(resultMatrix, aux)){
 		fprintf(stderr, "Error pasando la matriz a lista\n");
 		PL_fail;
 	}
+	destroyMatrix(matrix1);
+	destroyMatrix(matrix2);
+	destroyMatrix(resultMatrix);
+
 	return PL_unify(aux, result);
 }
 
