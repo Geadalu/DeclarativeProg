@@ -14,7 +14,7 @@ partir([], _, [], []).
 
 
 quicksort([], []).
-quicksort([H|T], OL):- partir([H|T], L1, L2),quicksort(L1, OL1), quicksort(L2, OL2), 
+quicksort(L, OL):- L = [H|T], partir(L, L1, L2),quicksort(L1, OL1), quicksort(L2, OL2), 
                         OL3 = [H|OL2], append(OL1, OL3, OL).
 
 

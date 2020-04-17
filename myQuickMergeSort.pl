@@ -10,4 +10,4 @@ quicksort([], []).
 
 mergesort(L, LO) :- L = [H|T], partir2(L, L1, L2).
 
-partir2(
+partir2(L, L1, L2):- length(L, Length), 

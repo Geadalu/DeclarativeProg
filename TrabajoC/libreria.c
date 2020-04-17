@@ -20,11 +20,16 @@ Matrix_C* createMatrix(int rows, int columns){
 	return matrix;
 }
 
+//checkInteger
+//Comprueba si el term_t introducido es un integer
 int checkInteger(int* integer, term_t term){
 	if(PL_is_integer(term)){
 		if(!PL_get_integer(term, integer)){
 			return 0;
 		}
+		return 1;
+	} else {
+		return 0;
 	}
 }
 
@@ -74,7 +79,7 @@ int list_toMatrix(term_t list_ofLists, Matrix_C* matrix){
 	for (i=0; i<matrix->rows; i++){
 
 		if(!PL_get_list(tail, head, tail)){
-			fprintf(stderr, "Error en PL_get_list en método list_toMatrix\n");
+			fprintf(stderr, "Error recogiendo la lista.\n");
 			return 0;
 		}
 
@@ -146,7 +151,6 @@ foreign_t pl_multiply_matrix_by (term_t multiplier_, term_t list_ofLists, term_t
 		PL_fail;
 	}
 
-	//Convertir la lista de listas a Matrix_C
 	Matrix_C* matrix = createMatrix(rows, columns);
  	if (list_toMatrix(list_ofLists, matrix) == 0){
 		fprintf(stderr, "Error pasando la lista a matriz\n");
@@ -221,7 +225,7 @@ foreign_t pl_sum_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t ro
 
 	Matrix_C* matrix1 = createMatrix(rows, columns);
  	if (list_toMatrix(list_ofLists1, matrix1) == 0){
-		fprintf(stderr, "Error pasando la primera lista a matriz.\nRecuerde que, para sumar dos matrices, ambas tienen que tener las mismas dimensiones.");
+		fprintf(stderr, "Error pasando la primera lista a matriz.\nRecuerde que, para sumar dos matrices, ambas tienen que tener las mismas dimensiones.\n");
 		PL_fail;
 	}
 
@@ -248,7 +252,8 @@ foreign_t pl_sum_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t ro
 //pl_multiply_matrixes
 //Multiplicar dos matrices
 //multiply_matrixes([[1,2,1],[2,1,2]],[[1, 1],[1,1],[1,1]], 2, 3, 3, 2, R).
-foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t rows1_, term_t columns1_, term_t rows2_, term_t columns2_, term_t result){
+foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term_t rows1_, 
+		term_t columns1_, term_t rows2_, term_t columns2_, term_t result){
 	int columns1, rows1, columns2, rows2;
 
 	if(!checkInteger(&columns1, columns1_)){
@@ -262,7 +267,8 @@ foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term
 	}
 
 	if(columns1 != rows2){
-		fprintf(stderr, "No se pueden multiplicar dos matrices si el número de columnas de la primera no es igual al número de filas de la segunda\n");
+		fprintf(stderr, "No se pueden multiplicar dos matrices si el "
+		"número de columnas de la primera no es igual al número de filas de la segunda\n");
 		PL_fail;
 	}
 
@@ -294,14 +300,12 @@ foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term
 
 	for(i=0; i<rows1+1; i++){
 		for(j=0; j<columns2+1; j++){
-			resultMatrix->matrix[i*columns2+j] = 0;
 			for (k=0; k<rows1+1; k++){
 				resultMatrix->matrix[i*columns2+j] += matrix1->matrix[i*columns1+k] * matrix2->matrix[k*columns2+j];
 			}
 		}
 	}
 	
-
 	term_t aux = PL_new_term_ref();
 	if (!matrix_toList(resultMatrix, aux)){
 		fprintf(stderr, "Error pasando la matriz a lista\n");
@@ -314,16 +318,16 @@ foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term
 //ayuda de la librería
 foreign_t pl_help_matrix (){
 	fprintf(stderr, "Bienvenid@ a la librería Matrilog.\nLas operaciones disponibles son:\n\n");
-	fprintf(stderr, "  - total_matrix(list_ofLists:list, rows:integer, columns:integer, Result:variable)\n    Sumar todos los elementos de una matriz y almacenar el resultado en Result\n\n");
 	fprintf(stderr, "  - mult_matrix_by(multiplier:integer, list_ofLists:list, rows:integer, columns:integer, Result:variable)\n    Multiplicar por multiplier todos los elementos de una matriz y almacenar la matriz resultado en Result\n\n");
+	fprintf(stderr, "  - total_matrix(list_ofLists:list, rows:integer, columns:integer, Result:variable)\n    Sumar todos los elementos de una matriz y almacenar el resultado en Result\n\n");
 	fprintf(stderr, "  - sum_matrixes(list_ofLists:list, list_ofLists:list, rows:integer, columns:integer, Result:variable)\n    Sumar dos matrices y almacenar el resultado en Result\n\n");
 	fprintf(stderr, "  - multiply_matrixes(list_ofLists:list, list_ofLists:list, rows1:integer, columns1:integer, rows2:integer, columns2:integer, Result:variable)\n    Multiplicar dos matrices y almacenar el resultado en Result\n");
 	PL_succeed;
 }
 
 install_t install() {
-	PL_register_foreign("total_matrix", 4, pl_total_matrix, 0);
 	PL_register_foreign("mult_matrix_by", 5, pl_multiply_matrix_by, 0);
+	PL_register_foreign("total_matrix", 4, pl_total_matrix, 0);
 	PL_register_foreign("sum_matrixes", 5, pl_sum_matrixes, 0);
 	PL_register_foreign("multiply_matrixes", 7, pl_multiply_matrixes, 0);
 	PL_register_foreign("help_matrix", 0, pl_help_matrix, 0);
