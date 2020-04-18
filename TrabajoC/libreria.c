@@ -21,8 +21,6 @@ Matrix_C* createMatrix(int rows, int columns){
 //destroyMatrix
 //Liberamos la memoria del sistema
 void destroyMatrix(Matrix_C* matrix){
-	//free(matrix->matrix);
-	//matrix->matrix = NULL;
 	free(matrix);
 	matrix = NULL;
 }
@@ -104,28 +102,28 @@ int matrix_toList(Matrix_C* matrix, term_t term){
 	int i, j;
 	
 	if(!PL_put_nil(term)){
-		fprintf(stderr, "Error pasando la matriz a lista en PL_put_nil(term)\n");
+		fprintf(stderr, "Error pasando la matriz a lista\n");
 		return 0;
 	}
 	
 	for (i=matrix->rows-1; i>=0; i--){
 		term_t currentRow = PL_new_term_ref();
 		if(!PL_put_nil(currentRow)){
-			fprintf(stderr, "Error pasando la matriz a lista en PL_put_nil(cR)\n");
+			fprintf(stderr, "Error pasando la matriz a lista\n");
 			return 0;
 		}
 		for(j=matrix->columns-1; j>=0; j--){
 			term_t aux_t = PL_new_term_ref();
 			if(!PL_put_float(aux_t, matrix->matrix[j+i*matrix->columns])){
-				fprintf(stderr, "Error pasando la matriz a lista en PL_put_float\n");
+				fprintf(stderr, "Error recogiendo un número float de la matriz.\n");
 				return 0;
 			} else if(!PL_cons_list(currentRow, aux_t, currentRow)){
-				fprintf(stderr, "Error pasando la matriz a lista en PL_cons_list\n");
+				fprintf(stderr, "Error construyendo una fila de la lista.\n");
 				return 0;
 			}
 		}
 		if(!PL_cons_list(term, currentRow, term)){
-			fprintf(stderr, "Error pasando la matriz a lista en PL_cons_list\n");
+			fprintf(stderr, "Error añadiendo una fila a la lista.\n");
 			return 0;
 		}
 	}
