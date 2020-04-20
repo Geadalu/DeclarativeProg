@@ -102,14 +102,14 @@ int matrix_toList(Matrix_C* matrix, term_t term){
 	int i, j;
 	
 	if(!PL_put_nil(term)){
-		fprintf(stderr, "Error pasando la matriz a lista\n");
+		fprintf(stderr, "Error creando la lista vacía\n");
 		return 0;
 	}
 	
 	for (i=matrix->rows-1; i>=0; i--){
 		term_t currentRow = PL_new_term_ref();
 		if(!PL_put_nil(currentRow)){
-			fprintf(stderr, "Error pasando la matriz a lista\n");
+			fprintf(stderr, "Error creando la lista vacía\n");
 			return 0;
 		}
 		for(j=matrix->columns-1; j>=0; j--){
@@ -209,13 +209,12 @@ foreign_t pl_total_matrix (term_t list_ofLists, term_t rows_, term_t columns_, t
 
 	term_t r = PL_new_term_ref();
 
+	destroyMatrix(matrix);
 	if(PL_put_float(r, sum)){
 		return PL_unify(r, result);
 	} else {
 		PL_fail;
 	}
-	destroyMatrix(matrix);
-
 }
 
 //sum_matrixes([[1,2], [2,1], [1,1]], [[2,1], [2,1], [1,1]], 3, 2, R).
@@ -292,7 +291,6 @@ foreign_t pl_multiply_matrixes (term_t list_ofLists1, term_t list_ofLists2, term
 		PL_fail;
 	}
 
-	
 	if(!checkInteger(&columns2, columns2_)){
 		fprintf(stderr, "La variable columns2 no es válida\n");		
 		PL_fail;
